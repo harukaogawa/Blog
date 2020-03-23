@@ -1,45 +1,26 @@
 class PostsController < ApplicationController
-  # 各アクションが呼び出される前に実行する(%iは、シンボルの配列を作成)
-  before_action :set_target_post, only: %i[show edit update destroy]
-
   def index
+      # 投稿データを全て取得、またインスタンス変数なのでViewで参照可能
       @posts = Post.all
   end
 
   def new
+      # Postモデルのオブジェクトを作成
+      # @boardはインスタンス変数で、Viewで参照可能
       @post = Post.new
   end
 
   def create
-      post = Post.create(post_params)
-
-      redirect_to post
-  end
-
-  def show
-  end
-
-  def edit
-  end
-
-  def update
-      @post.update(post_params)
-      redirect_to @post
-  end
-
-  def destroy
-      @post.delete
-      redirect_to posts_path
+      # データはparamsという変数に渡されてくる
+      # create は、Postモデルのクラスメソッド
+      Post.create(post_params)
+      binding.pry
   end
 
   private
 
+  # paramsから欲しいデータのみ抽出
   def post_params
       params.require(:post).permit(:name, :title, :content)
-  end
-
-  # アクションが呼び出される前に実行したい処理を記述
-  def set_target_post
-      @post = Post.find(params[:id])
   end
 end
