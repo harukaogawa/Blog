@@ -1,46 +1,59 @@
 class PostsController < ApplicationController
-  def index
-      @posts = Post.all
-  end
+    before_action :set_target_post, only: %i[show edit update destroy]
 
-  def new
-      @post = Post.new
-  end
+    def index
+        @posts = Post.page(params[:page])
+    end
 
-  # 修正
-  def create
-      post = Post.create(post_params)
+    def new
+        @post = Post.new(flash[:board])
+    end
+    
+    def create
+       post = Post.new(post_params)
 
-      # リダイレクト処理追加
-      redirect_to post
-  end
+       if post.save
+          flash[:notice] = "「#{post.title}」の記事が投稿されました!"
+          redirect_to post
+        else
+        redirect_to new_post_path, flash: {
+          post: post,
+          error_messages: post.errors.full_messages
+        }
+       end
+    end
 
-  def show
-      @post = Post.find(params[:id])
-  end
+    def show
+    end
 
-  def edit
-      @post = Post.find(params[:id])
-  end
+    def edit
+    end
 
-  def update
-      post = Post.find(params[:id])
-      post.update(post_params)
-      redirect_to post
-  end
+    def update
+        @post.update(post_params)
 
-  # 削除機能
-  def destroy
-      post = Post.find(params[:id])
-      post.delete
+        # フラッシュ
+        flash[:notice] = "「#{@post.title}」の記事を更新しました!"
 
-      # 投稿一覧へリダイレクト
-      redirect_to posts_path
-  end
+        redirect_to @post
+    end
 
-  private
+    def destroy
+        @post.delete
 
-  def post_params
-      params.require(:post).permit(:name, :title, :content)
-  end
+        # フラッシュ 
+        flash[:notice] = "「#{@post.title}」の記事を削除しました!"
+
+        redirect_to posts_path
+    end
+
+    private
+
+    def post_params
+        params.require(:post).permit(:name, :title, :content)
+    end
+
+    def set_target_post
+        @post = Post.find(params[:id])
+    end
 end
