@@ -10,9 +10,12 @@ class PostsController < ApplicationController
     end
     
     def create
+       # Post モデルを引数のパラメータで初期化(データの保存は指定ない)
        post = Post.new(post_params)
-
+    
+       # 保存の正否をチェック
        if post.save
+          # フラッシュ
           flash[:notice] = "「#{post.title}」の記事が投稿されました!"
           redirect_to post
         else
@@ -39,6 +42,7 @@ class PostsController < ApplicationController
     end
 
     def destroy
+        # binding pry
         @post.delete
 
         # フラッシュ 
