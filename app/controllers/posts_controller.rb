@@ -1,45 +1,59 @@
 class PostsController < ApplicationController
-  # 各アクションが呼び出される前に実行する(%iは、シンボルの配列を作成)
-  before_action :set_target_post, only: %i[show edit update destroy]
+    before_action :set_target_post, only: %i[show edit update destroy]
 
-  def index
-      @posts = Post.all
-  end
+    def index
+        @posts = Post.page(params[:page])
+    end
 
-  def new
-      @post = Post.new
-  end
+    def new
+        @post = Post.new(flash[:board])
+    end
+    
+    def create
+       post = Post.new(post_params)
 
-  def create
-      post = Post.create(post_params)
+       if post.save
+          flash[:notice] = "「#{post.title}」の記事が投稿されました!"
+          redirect_to post
+        else
+        redirect_to new_post_path, flash: {
+          post: post,
+          error_messages: post.errors.full_messages
+        }
+       end
+    end
 
-      redirect_to post
-  end
+    def show
+    end
 
-  def show
-  end
+    def edit
+    end
 
-  def edit
-  end
+    def update
+        @post.update(post_params)
 
-  def update
-      @post.update(post_params)
-      redirect_to @post
-  end
+        # フラッシュ
+        flash[:notice] = "「#{@post.title}」の記事を更新しました!"
 
-  def destroy
-      @post.delete
-      redirect_to posts_path
-  end
+        redirect_to @post
+    end
 
-  private
+    def destroy
+        @post.delete
 
-  def post_params
-      params.require(:post).permit(:name, :title, :content)
-  end
+        # フラッシュ 
+        flash[:notice] = "「#{@post.title}」の記事を削除しました!"
 
-  # アクションが呼び出される前に実行したい処理を記述
-  def set_target_post
-      @post = Post.find(params[:id])
-  end
+        redirect_to posts_path
+    end
+
+    private
+
+    def post_params
+        params.require(:post).permit(:name, :title, :content)
+    end
+
+    def set_target_post
+        @post = Post.find(params[:id])
+    end
 end
