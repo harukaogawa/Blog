@@ -52,3 +52,9 @@ production:
   database: Blog_production
   username: Blog
   password: <%= ENV['BLOG_DATABASE_PASSWORD'] %>
+
+production:
+  <<: *default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
